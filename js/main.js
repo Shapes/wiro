@@ -1,28 +1,40 @@
 function start(){
-var renderer = new THREE.WebGLRenderer();
-        renderer.setSize( 1000, 600 );
-        var wrapper = document.getElementById('wrapper');
-        wrapper.appendChild( renderer.domElement );
+    var wrapper = document.getElementById('wrapper');
+    var scene, camera, renderer;
+    var geometry, material, mesh;
+    var width=1000, height=600;
 
-        var scene = new THREE.Scene();
+    init();
+    animate();
 
-        var camera = new THREE.PerspectiveCamera(
-            35,             // Field of view
-            800 / 600,      // Aspect ratio
-            0.1,            // Near plane
-            10000           // Far plane
-        );
-        camera.position.set( -15, 10, 10 );
-        camera.lookAt( scene.position );
+    function init() {
 
-        var geometry = new THREE.CubeGeometry( 5, 5, 5 );
-        var material = new THREE.MeshLambertMaterial( { color: 0xFF0000 } );
-        var mesh = new THREE.Mesh( geometry, material );
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera( 75, width / height, 1, 10000 );
+        camera.position.z = 1000;
+
+        geometry = new THREE.BoxGeometry( 400, 400, 400 );
+        material = new THREE.MeshBasicMaterial( { color: 0xffffff, wireframe: false } );
+
+        mesh = new THREE.Mesh( geometry, material );
         scene.add( mesh );
 
-        var light = new THREE.PointLight( 0xFFFF00 );
-        light.position.set( 10, 0, 10 );
-        scene.add( light );
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize( width, height );
+
+        wrapper.appendChild( renderer.domElement );
+
+    }
+
+    function animate() {
+
+        requestAnimationFrame( animate );
+
+        mesh.rotation.x += 0.01;
+        mesh.rotation.y += 0.02;
 
         renderer.render( scene, camera );
+
+    }
 }
