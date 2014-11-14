@@ -1,8 +1,8 @@
 function start(){
     var wrapper = document.getElementById('wrapper');
     var scene, camera, renderer, splineCamera, cameraEye;
-    var geometry, material, mesh, tube, animation=true,animiraj=true, cube;
-    var width=1000, height=600;
+    var geometry, material, mesh, tube, animation=false,animiraj=true, cube;
+    var width=1000, height=600, loader;
 
     var targetRotation = 0;
     var targetRotationOnMouseDown = 0;
@@ -99,13 +99,18 @@ function start(){
 //            fragmentShader: document.getElementById( 'fragmentShader' ).textContent
 //
 //        } );
-        
-        
         cube = new THREE.Mesh(geometry, material); 
         cube.translateX(10);
         cube.translateY(30);
         cube.translateZ(10);
         objekt.add(cube);
+        
+        THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+        loader = new THREE.OBJMTLLoader();
+        loader.load( 'images/dog.obj', 'images/dog.mtl', function ( model ) {
+
+            objekt.add( model );
+        } );
         
     
         splineCamera = new THREE.PerspectiveCamera( 84, window.innerWidth / window.innerHeight, 0.01, 1000 );
@@ -189,11 +194,12 @@ var lookAhead=true;
         pos.add( normal.clone().multiplyScalar( offset ) );
         
         splineCamera.position.copy( pos );
+        
+        // model ?
         var pos2 = tube.parameters.path.getPointAt( t+0.014 );
         pos2.z = pos2.z+2;
         pos2.x = pos2.x+2;
-        if(animiraj)    // dodelati
-            cube.position.copy( pos2 );
+        cube.position.copy( pos2 );
         
 
         // Camera Orientation 1 - default look at
