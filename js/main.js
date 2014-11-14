@@ -1,14 +1,11 @@
 function start(){
     var wrapper = document.getElementById('wrapper');
     var scene, camera, renderer, splineCamera, cameraEye;
-    var geometry, material, mesh, tube, animation=true,animiraj=true;
+    var geometry, material, mesh, tube, animation=true,animiraj=true, cube;
     var width=1000, height=600;
 
     var targetRotation = 0;
     var targetRotationOnMouseDown = 0;
-
-    var mouseX = 0;
-    var mouseXOnMouseDown = 0;
 
     var windowHalfX = window.innerWidth / 2;
     var windowHalfY = window.innerHeight / 2;
@@ -23,7 +20,6 @@ function start(){
 
         scene = new THREE.Scene();
         
-        
         light = new THREE.DirectionalLight( 0xffffff );
         light.position.set( 1, 1, 1 );
         scene.add( light );
@@ -35,12 +31,12 @@ function start(){
         light = new THREE.AmbientLight( 0x222222 );
         scene.add( light );
 
-        camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000 );
+        camera = new THREE.PerspectiveCamera(10, width / height, 0.1, 1000 );
         // Field of Vire, Aspect ratio, Near, Far
-        camera.position.set(0, 50, 500); // X, Y, Z 
+        camera.position.set(-90, 180, 300); // Y, X, Z 
         camera.lookAt(scene.position);
        
-        
+        //Create a closed bent a sine-like wave
         var spline = new THREE.SplineCurve3([
 				new THREE.Vector3(0, 10, -10),
                 new THREE.Vector3(10, 0, -10),
@@ -70,63 +66,84 @@ function start(){
                 new THREE.Vector3(80, 0, 0),
                 new THREE.Vector3(90, 0, 0),
                 new THREE.Vector3(100, 0, 0)]);
-        
-        var numPoints = spline.getLength();
 
-        
-        var sampleClosedSpline = new THREE.ClosedSplineCurve3([
-			new THREE.Vector3(0, -40, -40),
-			new THREE.Vector3(0, 40, -40),
-			new THREE.Vector3(0, 140, -40),
-			new THREE.Vector3(0, 40, 40),
-			new THREE.Vector3(0, -40, 40),
-		]);
-        
-        
-        var geometry = new THREE.Geometry();
-        var splinePoints = spline.getPoints(numPoints);
+             
+        var numPoints = spline.getLength();                 // dobimo tocke
+        var geometry = new THREE.Geometry();                // novo telo
+        var splinePoints = spline.getPoints(numPoints);     // damo tocke v spremenljivko
         
         for (var i=0; i< splinePoints.length; i++) {
-            geometry.vertices.push(splinePoints[i]);
-        }
+            geometry.vertices.push(splinePoints[i]);        // objektu telo nastavimo tocke
+        }                                                   // v njegov array(verctices) damo tocke nasega telesa 
         
 
-        var line = new THREE.Line(geometry, material);
-
-
-        parent = new THREE.Object3D();
-        parent.position.y = 100;
-        scene.add( parent );
+        objekt = new THREE.Object3D();                      // naredimo 3D objekt=(grupa teles)
+        objekt.position.y = -25;                            // Vector3 < nastavimo pozicijo Y, ostalo privzetno 0,0
+                                                            
+        scene.add(objekt);                                  // na sceno dodamo objekt                
+    
+        
+        var geometry = new THREE.BoxGeometry( 3, 3, 3);  // 500 500 500
+        //var material = new THREE.MeshBasicMaterial({color: 0xfffff, wireframe: true});
+        var material = new THREE.MeshPhongMaterial( { map: THREE.ImageUtils.loadTexture('images/water.jpg') } );
+//        var material = new THREE.ShaderMaterial( {
+//
+//            uniforms: {
+//                time: { type: "f", value: 1.0 },
+//                resolution: { type: "v2", value: new THREE.Vector2() }
+//            },
+//            attributes: {
+//                vertexOpacity: { type: 'f', value: [] }
+//            },
+//            vertexShader: document.getElementById( 'vertexShader' ).textContent,
+//            fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+//
+//        } );
+        
+        
+        cube = new THREE.Mesh(geometry, material); 
+        cube.translateX(10);
+        cube.translateY(30);
+        cube.translateZ(10);
+        objekt.add(cube);
+        
     
         splineCamera = new THREE.PerspectiveCamera( 84, window.innerWidth / window.innerHeight, 0.01, 1000 );
-        parent.add( splineCamera );
-        //splineCamera.rotateOnAxis(new THREE.Vector3(1, 0, 0), degInRad(10));
-        
+        //splineCamera.rotateOnAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(100));
+        objekt.add( splineCamera );                         // postavimo spline camero na objekt
+    
         tube = new THREE.TubeGeometry(new THREE.Curves.KnotCurve(), 200, 2, 3, true);
+        // new THREE.Curves.KnotCurve() / spline
+        // naredimo TUBE okoli 3D linije, PARAMETRI: PATH(deduje od Curve), Stevilo na koliko je lomljen path, Polmer=sirina steze,
+        // closed = true =se zliva skupaj
         addGeometry(tube, 0xF4A460);
-	    
+	    //TMesh = new THREE.Mesh(tube, material);
+        //objekt.add(TMesh);
+        
         renderer = new THREE.WebGLRenderer();
         renderer.setSize( width, height );
 
         wrapper.appendChild( renderer.domElement );
 
-        renderer.render( scene, splineCamera );
+        renderer.render( scene, animation === true ? splineCamera : camera );
         renderer.setClearColor( 0xf0f0f0 );
     }
 
     function addGeometry( geometry, color ) {
         tubeMesh = THREE.SceneUtils.createMultiMaterialObject( geometry, [
             new THREE.MeshLambertMaterial({
-                color: color
+                color: color,
+                shading: THREE.FlatShading
             }),
             new THREE.MeshBasicMaterial({
-                color: 0x000000,
+                color: 0x0,            
                 opacity: 0.3,
                 wireframe: true,
-                transparent: true
-        })]);
+                transobjekt: true
+            })
+        ]);
 
-        parent.add( tubeMesh );
+        objekt.add( tubeMesh );
 
     }
 
@@ -142,11 +159,12 @@ var lookAhead=true;
     function render() {
         
         // Try Animate Camera Along Spline
-        var time = Date.now();                           // Trenutni ca
-        var looptime = 20 * 5000;                        // cas zanke ? HITROST 
-        var t = ( time % looptime ) / looptime;
-
-        var pos = tube.parameters.path.getPointAt( t );
+        var time = Date.now();                           // Trenutni cas , milisekunde
+        var looptime = 8000;                        // cas zanke ? HITROST, cas ka pridemo okoli, Vecja st 
+        var t = ( time % looptime ) / looptime;         //  od 0 do 1, koficient pozicije odvisen casa
+        
+        
+        var pos = tube.parameters.path.getPointAt( t );  // dobimo pozicijo na Tubu glede na T
         //console.log(pos);
         //pos.multiplyScalar(10);         
         
@@ -159,11 +177,11 @@ var lookAhead=true;
         binormal.subVectors( tube.binormals[ pickNext ], tube.binormals[ pick ] );
         binormal.multiplyScalar( pickt - pick ).add( tube.binormals[ pick ] );
 
-
+        
 
         var dir = tube.parameters.path.getTangentAt( t );
 
-        var offset = 2.8;
+        var offset = 2.9;
 
         normal.copy( binormal ).cross( dir );
 
@@ -171,14 +189,18 @@ var lookAhead=true;
         pos.add( normal.clone().multiplyScalar( offset ) );
         
         splineCamera.position.copy( pos );
-        //cameraEye.position.copy( pos );
-
+        var pos2 = tube.parameters.path.getPointAt( t+0.014 );
+        pos2.z = pos2.z+2;
+        pos2.x = pos2.x+2;
+        if(animiraj)    // dodelati
+            cube.position.copy( pos2 );
+        
 
         // Camera Orientation 1 - default look at
         // splineCamera.lookAt( lookAt );
 
         // Using arclength for stablization in look ahead.
-        var lookAt = tube.parameters.path.getPointAt( ( t + 30 / tube.parameters.path.getLength() ) % 1 ).multiplyScalar( 5 );
+        var lookAt = tube.parameters.path.getPointAt( ( t + 50 / tube.parameters.path.getLength() ) % 1 ).multiplyScalar( 5 );
 
         // Camera Orientation 2 - up orientation via normal
         if (!lookAhead)
@@ -186,34 +208,33 @@ var lookAhead=true;
         
         splineCamera.matrix.lookAt(splineCamera.position, lookAt, normal);
         splineCamera.rotation.setFromRotationMatrix( splineCamera.matrix,   splineCamera.rotation.order );
+        
+        cube.matrix.lookAt(splineCamera.position, lookAt, normal);
+        cube.rotation.setFromRotationMatrix( splineCamera.matrix,   splineCamera.rotation.order );
 
 
+        objekt.rotation.y += ( targetRotation - objekt.rotation.y ) * 0.05;
+        //objekt.rotatin.x = 2;
 
-        parent.rotation.y += ( targetRotation - parent.rotation.y ) * 0.05;
-
-        renderer.render( scene, splineCamera );
+        renderer.render( scene, animation === true ? splineCamera : camera );
+        //renderer.render( scene, camera );
         renderer.setClearColor( 0xf0f0f0 );
     }
 }
 
-THREE.Curves = {};
-
-
-THREE.Curves.KnotCurve = THREE.Curve.create(
-
-	function() {
-
-	},
-
-	function(t) {
+THREE.Curves = {};                                  // dedovanje Od Curves
+THREE.Curves.KnotCurve = THREE.Curve.create(        // matematika za PATH iz katerega zgradimo potem TUBE
+                                                    // KnotCurve Deduje od Curve in mu nastavimo costum create
+	function() {},
+	function(t) {       //getPoint: t is between 0-1
 
 		t *= 2 * Math.PI;
 
 		var R = 10;
 		var s = 50;
 		var tx = s * Math.sin(t),
-			ty = Math.cos(t) * (R + s * Math.cos(t)),
-			tz = Math.sin(t) * (R + s * Math.cos(t));
+        ty = Math.cos(t) * (R + s * Math.cos(t)),
+        tz = Math.sin(t) * (R + s * Math.cos(t));
 
 		return new THREE.Vector3(tx, ty, tz);
 
