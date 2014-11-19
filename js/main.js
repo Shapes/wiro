@@ -1,7 +1,7 @@
 function start(){
     var wrapper = document.getElementById('wrapper');
     var scene, camera, renderer, splineCamera, cameraEye;
-    var geometry, material, mesh, tube, animation=false,animiraj=true, cube;
+    var geometry, material, mesh, tube, animation=true,animiraj=true, cube;
     var width=1000, height=600, loader;
 
     var targetRotation = 0;
@@ -38,34 +38,34 @@ function start(){
        
         //Create a closed bent a sine-like wave
         var spline = new THREE.SplineCurve3([
-				new THREE.Vector3(0, 10, -10),
-                new THREE.Vector3(10, 0, -10),
-                new THREE.Vector3(20, 0, 0),
-                new THREE.Vector3(30, 0, 10),
-                new THREE.Vector3(30, 0, 20),
-                new THREE.Vector3(20, 0, 30),
-                new THREE.Vector3(10, 0, 30),
-                new THREE.Vector3(0, 0, 30),
-                new THREE.Vector3(-10, 10, 30),
-                new THREE.Vector3(-10, 20, 30),
-                new THREE.Vector3(0, 30, 30),
-                new THREE.Vector3(10, 30, 30),
-                new THREE.Vector3(20, 30, 15),
-                new THREE.Vector3(10, 30, 10),
-                new THREE.Vector3(0, 30, 10),
-                new THREE.Vector3(-10, 20, 10),
-                new THREE.Vector3(-10, 10, 10),
+				new THREE.Vector3(0, 0, 0),
                 new THREE.Vector3(0, 0, 10),
-                new THREE.Vector3(10, -10, 10),
-                new THREE.Vector3(20, -15, 10),
-                new THREE.Vector3(30, -15, 10),
-                new THREE.Vector3(40, -15, 10),
-                new THREE.Vector3(50, -15, 10),
-                new THREE.Vector3(60, 0, 10),
-                new THREE.Vector3(70, 0, 0),
-                new THREE.Vector3(80, 0, 0),
-                new THREE.Vector3(90, 0, 0),
-                new THREE.Vector3(100, 0, 0)]);
+            new THREE.Vector3(0, 0, 20),
+            new THREE.Vector3(0, 0, 30),
+            new THREE.Vector3(0, 0, 40),
+            new THREE.Vector3(0, 0, 50),
+            new THREE.Vector3(0, 0, 60),
+            new THREE.Vector3(0, 10, 80),
+            new THREE.Vector3(0, 10, 90),
+            new THREE.Vector3(0, 10, 100),
+            new THREE.Vector3(0, 0, 110),
+            new THREE.Vector3(0, 0, 120),
+            new THREE.Vector3(0, 0, 130),
+            new THREE.Vector3(0, 0, 140),
+            new THREE.Vector3(10, 0, 150),
+            new THREE.Vector3(20, 0, 160),
+            new THREE.Vector3(30, 0, 170),
+            new THREE.Vector3(20, 0, 180),
+            new THREE.Vector3(10, 0, 190),
+            new THREE.Vector3(0, 0, 200),
+            new THREE.Vector3(0, 0, 210),
+            new THREE.Vector3(0, 0, 220),
+            new THREE.Vector3(0, 0, 230),
+            new THREE.Vector3(0, 0, 240),
+            new THREE.Vector3(0, 0, 250),
+            new THREE.Vector3(0, 0, 260),
+            new THREE.Vector3(0, 0, 270),
+            new THREE.Vector3(0, 0, 280)]);
 
              
         var numPoints = spline.getLength();                 // dobimo tocke
@@ -108,7 +108,7 @@ function start(){
         THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
         loader = new THREE.OBJMTLLoader();
         loader.load( 'images/dog.obj', 'images/dog.mtl', function ( model ) {
-
+            model.translateY(50);
             objekt.add( model );
         } );
         
@@ -117,7 +117,7 @@ function start(){
         //splineCamera.rotateOnAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(100));
         objekt.add( splineCamera );                         // postavimo spline camero na objekt
     
-        tube = new THREE.TubeGeometry(new THREE.Curves.KnotCurve(), 200, 2, 3, true);
+        tube = new THREE.TubeGeometry(spline, 200, 2, 3, false);
         // new THREE.Curves.KnotCurve() / spline
         // naredimo TUBE okoli 3D linije, PARAMETRI: PATH(deduje od Curve), Stevilo na koliko je lomljen path, Polmer=sirina steze,
         // closed = true =se zliva skupaj
