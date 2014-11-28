@@ -1,9 +1,23 @@
 function start(){
     var wrapper = document.getElementById('wrapper');
     var scene, camera, renderer, splineCamera, cameraEye;
+<<<<<<< Updated upstream
 
     var geometry, material, mesh, tube, animation=true,animiraj=true, cube, pos2, t;
     var width=1000, height=600, loader;
+=======
+    var geometry, material, mesh, tube, animation=true,animation2=true,animiraj=true, cube;
+    var width=1000, height=600, loader, objekt;
+    var modelMesh;
+
+    var animOffset       = 0,   // starting frame of animation
+	walking         = false,
+	duration        = 1000, // milliseconds to complete animation
+	keyframes       = 20,   // total number of animation frames
+	interpolation   = duration / keyframes, // milliseconds per frame
+	lastKeyframe    = 0,    // previous keyframe
+	currentKeyframe = 0;
+>>>>>>> Stashed changes
     
     var targetRotation = 0;
     var targetRotationOnMouseDown = 0;
@@ -62,12 +76,17 @@ function start(){
 
         camera = new THREE.PerspectiveCamera(5, width / height, 0.1, 1000 );            // nepomembna kamera trenutno
         // Field of Vire, Aspect ratio, Near, Far
+<<<<<<< Updated upstream
         camera.position.set(0, 900, 0); // Y, X, Z 
+=======
+        camera.position.set(-40, -130, 650); 
+>>>>>>> Stashed changes
         camera.lookAt(scene.position);
         camera.rotation.y = -1 * Math.PI / 180;
        
-        //Create a closed bent a sine-like wave
+        //Linija po kateri se premika objekt
         var spline = new THREE.SplineCurve3([
+<<<<<<< Updated upstream
             new THREE.Vector3(0, 0, 0),
             new THREE.Vector3(0, 0, 20),
             new THREE.Vector3(0, 0, 40),
@@ -121,6 +140,36 @@ function start(){
 //            new THREE.Vector3(0, 0, 0),
 //            new THREE.Vector3(0, 0, 0)]);
 
+=======
+				new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, 0, 10),
+                new THREE.Vector3(0, 0, 20),
+                new THREE.Vector3(0, 0, 30),
+                new THREE.Vector3(0, 0, 40),
+                new THREE.Vector3(0, 0, 50),
+                new THREE.Vector3(0, 0, 60),
+                new THREE.Vector3(0, 2, 80),
+                new THREE.Vector3(0, 4, 90),
+                new THREE.Vector3(0, 5, 100),
+                new THREE.Vector3(0, 4, 110),
+                new THREE.Vector3(0, 2, 120),
+                new THREE.Vector3(2, 1, 130),
+                new THREE.Vector3(4, 0, 140),
+                new THREE.Vector3(8, 0, 150),
+                new THREE.Vector3(10, 0, 160),
+                new THREE.Vector3(12, 0, 170),
+                new THREE.Vector3(10, 0, 180),
+                new THREE.Vector3(9, 0, 190),
+                new THREE.Vector3(7, 0, 200),
+                new THREE.Vector3(5, 0, 210),
+                new THREE.Vector3(3, 0, 220),
+                new THREE.Vector3(0, 0, 230),
+                new THREE.Vector3(0, 0, 240),
+                new THREE.Vector3(0, 0, 250),
+                new THREE.Vector3(0, 0, 260),
+                new THREE.Vector3(0, 0, 270),
+                new THREE.Vector3(0, 0, 280)]);
+>>>>>>> Stashed changes
 
        
         
@@ -136,9 +185,41 @@ function start(){
         objekt = new THREE.Object3D();                      // naredimo 3D objekt=(grupa teles)
         objekt.position.y = 0;                            // Vector3 < nastavimo pozicijo Y, ostalo privzetno 0,0
                                                             
+<<<<<<< Updated upstream
         scene.add(objekt);                                  // na sceno dodamo objekt      
+=======
+        scene.add(objekt);                                  // na sceno dodamo objekt                
+    
         
         
+        var geometry = new THREE.SphereGeometry( 0.5, 0.3, 0.3);  // 500 500 500
+        //var material = new THREE.MeshBasicMaterial({color: 0xfffff, wireframe: true});
+        var material = new THREE.MeshPhongMaterial( { map: THREE.ImageUtils.loadTexture('images/water.jpg') } );
+//        var material = new THREE.ShaderMaterial( {
+//
+//            uniforms: {
+//                time: { type: "f", value: 1.0 },
+//                resolution: { type: "v2", value: new THREE.Vector2() }
+//            },
+//            attributes: {
+//                vertexOpacity: { type: 'f', value: [] }
+//            },
+//            vertexShader: document.getElementById( 'vertexShader' ).textContent,
+//            fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+//
+//        } );
+        cube = new THREE.Mesh(geometry, material); 
+        cube.translateX(0);
+        cube.translateY(30);
+        cube.translateZ(10);
+        objekt.add(cube);
+>>>>>>> Stashed changes
+        
+        
+        var loader = new THREE.JSONLoader();
+	   loader.load( "model/model2.js", addModelToSpline );
+        
+      
     
         var geometry = new THREE.BoxGeometry( 1, 1, 1);  // glavni lik igre
         var material = new THREE.MeshBasicMaterial({color: 0xfffAA, wireframe: false});
@@ -148,8 +229,14 @@ function start(){
     
         splineCamera = new THREE.PerspectiveCamera( 84, window.innerWidth / window.innerHeight, 0.01, 1000 );
         //splineCamera.rotateOnAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(100));
+<<<<<<< Updated upstream
         scene.add( splineCamera );  // postavimo spline camero na objekt    
         tube = new THREE.TubeGeometry(spline, 200, 5, 3, false);
+=======
+        objekt.add( splineCamera );                         // postavimo spline camero na objekt
+    
+        tube = new THREE.TubeGeometry( spline, 150, 3.5, 3, false);
+>>>>>>> Stashed changes
         // new THREE.Curves.KnotCurve() / spline
         // naredimo TUBE okoli 3D linije, PARAMETRI: PATH(deduje od Curve), Stevilo na koliko je lomljen path, Polmer=sirina steze,
         // closed = true =se zliva skupaj
@@ -166,6 +253,20 @@ function start(){
         renderer.setClearColor( 0xf0f0f0 );
     }
     
+<<<<<<< Updated upstream
+=======
+    function addModelToSpline( geometry, materials ){    
+        
+        //for (var i = 0; i < materials.length; i++)
+        //materials[i].morphTargets = true;
+        
+        var material = new THREE.MeshFaceMaterial( materials );
+        modelMesh = new THREE.Mesh( geometry, material );
+        modelMesh.scale.set(0.5,0.5,0.5);
+        modelMesh.position.set( 0, 0, 50 );
+        objekt.add( modelMesh );
+    }
+>>>>>>> Stashed changes
     
     function addGeometry( geometry, color ) {
         tubeMesh = THREE.SceneUtils.createMultiMaterialObject( geometry, [
@@ -253,12 +354,36 @@ function start(){
     
     var renderLoop=0;
     function render() {
+<<<<<<< Updated upstream
         renderLoop++;
     
         // Try Animate Camera Along Spline
         var time = clock.getElapsedTime();          // Cas pretecenei od clock.start do klica getElapsedTime v sekundah
         var looptime =15;                        // cas zanke ? HITROST, cas ka pridemo okoli, Vecja st 
         t = ( time % looptime ) / looptime;         //  od 0 do 1, koficient pozicije odvisen casa
+=======
+        /*
+        if ( modelMesh ){
+            time = new Date().getTime() % duration;
+            keyframe = Math.floor( time / interpolation ) + animOffset;
+            if ( keyframe != currentKeyframe ) {
+                modelMesh.morphTargetInfluences[ lastKeyframe ] = 0;
+                modelMesh.morphTargetInfluences[ currentKeyframe ] = 1;
+                modelMesh.morphTargetInfluences[ keyframe ] = 0;
+                lastKeyframe = currentKeyframe;
+                currentKeyframe = keyframe;
+            }
+            modelMesh.morphTargetInfluences[ keyframe ] = ( time % interpolation ) / interpolation;
+            modelMesh.morphTargetInfluences[ lastKeyframe ] = 1 - modelMesh.morphTargetInfluences[ keyframe ];
+        }
+        */
+        
+        
+        // Try Aimate Camera Along Spline
+        var time = Date.now();                           // Trenutni cas , milisekunde
+        var looptime = 12000;                        // cas zanke ? HITROST, cas ka pridemo okoli, Vecja st 
+        var t = ( time % looptime ) / looptime;         //  od 0 do 1, koficient pozicije odvisen casa
+>>>>>>> Stashed changes
         
         
         var pos = tube.parameters.path.getPointAt( t );  // dobimo pozicijo na Tubu glede na T
@@ -278,7 +403,7 @@ function start(){
 
         var dir = tube.parameters.path.getTangentAt( t );
 
-        var offset = 2.9;
+        var offset = 3;
 
         normal.copy( binormal ).cross( dir );
 
@@ -287,6 +412,7 @@ function start(){
         pos.y = pos.y-1;        // pozicija glavne kamere po oseh
         pos.z = pos.z-2;
         splineCamera.position.copy( pos );
+<<<<<<< Updated upstream
         pos2 = tube.parameters.path.getPointAt( t+0.0004 );
 
         // model ?
@@ -427,6 +553,15 @@ function start(){
         }	
         
         
+=======
+        
+        // model 
+        
+        var pos2 = tube.parameters.path.getPointAt( t+0.014 );
+        pos2.x = pos2.x;
+        pos2.y = pos2.y-3;
+        modelMesh.position.copy( pos2 );
+>>>>>>> Stashed changes
         
 
 
@@ -436,9 +571,10 @@ function start(){
         splineCamera.matrix.lookAt(splineCamera.position, lookAt, normal);
         splineCamera.rotation.setFromRotationMatrix( splineCamera.matrix,   splineCamera.rotation.order );
         
-        cube.matrix.lookAt(splineCamera.position, lookAt, normal);
-        cube.rotation.setFromRotationMatrix( splineCamera.matrix,   splineCamera.rotation.order );
-
+        
+        modelMesh.matrix.lookAt(splineCamera.position, lookAt, normal);
+        modelMesh.rotation.setFromRotationMatrix( splineCamera.matrix,   splineCamera.rotation.order );   
+        
 
         objekt.rotation.y += ( targetRotation - objekt.rotation.y ) * 0.05;
         //objekt.rotatin.x = 2;
