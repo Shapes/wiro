@@ -45,7 +45,7 @@ function start(){
     
 
     function init() {
-        clock = new THREE.Clock(false);
+        clock = new THREE.Clock(false);             // clock, false == autostart
         
         scene = new THREE.Scene();
         
@@ -60,7 +60,7 @@ function start(){
         light = new THREE.AmbientLight( 0x222222 );
         scene.add( light );
 
-        camera = new THREE.PerspectiveCamera(5, width / height, 0.1, 1000 );
+        camera = new THREE.PerspectiveCamera(5, width / height, 0.1, 1000 );            // nepomembna kamera trenutno
         // Field of Vire, Aspect ratio, Near, Far
         camera.position.set(0, 900, 0); // Y, X, Z 
         camera.lookAt(scene.position);
@@ -140,19 +140,11 @@ function start(){
         
         
     
-        var geometry = new THREE.BoxGeometry( 1, 1, 1);  // 500 500 500
+        var geometry = new THREE.BoxGeometry( 1, 1, 1);  // glavni lik igre
         var material = new THREE.MeshBasicMaterial({color: 0xfffAA, wireframe: false});
         cube = new THREE.Mesh(geometry, material); 
-
         objekt.add(cube);
-        
-        THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
-        loader = new THREE.OBJMTLLoader();
-        loader.load( 'images/dog.obj', 'images/dog.mtl', function ( model ) {
-            model.translateY(50);
-            //objekt.add( model );
-        } );
-        
+
     
         splineCamera = new THREE.PerspectiveCamera( 84, window.innerWidth / window.innerHeight, 0.01, 1000 );
         //splineCamera.rotateOnAxis(new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(100));
@@ -235,34 +227,28 @@ function start(){
         var geometryArtifact = new THREE.BoxGeometry(2, 2, 0.5);
         var materialArtifact = new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/gold.jpg') });
         var filled=false;
-        
-        // levo spodaj
-       // var x=-2.5, y=-3;
-        //while (allO!=0) { 
-        //for (var i; i<allO; i++) {
-            if(allO==9 || allO==4 || allO==3) x=-2;
-            if(allO==8 || allO==5 || allO==2) x=0;
-            if(allO==7 || allO==6 || allO==1) x=2;
-            
-            if(allO==9 || allO==8 || allO==7) y=-3.5;
-            if(allO==4 || allO==5 || allO==6) y=-5.5;
-            if(allO==1 || allO==2 || allO==3) y=-7.5;
-            while (filled==false) { 
-                var random = Math.floor(Math.random() * 3) + 1;
-                if (random == 1 && walls!=0){
-                    createWall(geometryWall, materialWall, x, y, z);
-                    walls--; filled = true; allO--; break;
-                } else if(random == 2 && artifacts!=0) {
-                    createArtifact(geometryArtifact, materialArtifact, x, y, z);
-                    artifacts--; filled = true; allO--; break;
-                } else if(random == 3 && empty!=0) {
-                    empty--; filled = true; allO--; break;
-                } else {
-                    continue;
-                }
+
+        if(allO==9 || allO==4 || allO==3) x=-2;
+        if(allO==8 || allO==5 || allO==2) x=0;
+        if(allO==7 || allO==6 || allO==1) x=2;
+
+        if(allO==9 || allO==8 || allO==7) y=-3.5;
+        if(allO==4 || allO==5 || allO==6) y=-5.5;
+        if(allO==1 || allO==2 || allO==3) y=-7.5;
+        while (filled==false) { 
+            var random = Math.floor(Math.random() * 3) + 1;
+            if (random == 1 && walls!=0){
+                createWall(geometryWall, materialWall, x, y, z);
+                walls--; filled = true; allO--; break;
+            } else if(random == 2 && artifacts!=0) {
+                createArtifact(geometryArtifact, materialArtifact, x, y, z);
+                artifacts--; filled = true; allO--; break;
+            } else if(random == 3 && empty!=0) {
+                empty--; filled = true; allO--; break;
+            } else {
+                continue;
             }
-            console.log(allO);
-       // }    
+        }
     }
     
     var renderLoop=0;
@@ -270,9 +256,8 @@ function start(){
         renderLoop++;
     
         // Try Animate Camera Along Spline
-        var time = clock.getElapsedTime(); //Date.now();                           // Trenutni cas , milisekunde
-        console.log(time);
-        var looptime = 50;                        // cas zanke ? HITROST, cas ka pridemo okoli, Vecja st 
+        var time = clock.getElapsedTime();          // Cas pretecenei od clock.start do klica getElapsedTime v sekundah
+        var looptime =15;                        // cas zanke ? HITROST, cas ka pridemo okoli, Vecja st 
         t = ( time % looptime ) / looptime;         //  od 0 do 1, koficient pozicije odvisen casa
         
         
@@ -299,13 +284,13 @@ function start(){
 
         // We move on a offset on its binormal
         pos.add( normal.clone().multiplyScalar( offset ) );
-        pos.y = pos.y-1;
+        pos.y = pos.y-1;        // pozicija glavne kamere po oseh
         pos.z = pos.z-2;
         splineCamera.position.copy( pos );
         pos2 = tube.parameters.path.getPointAt( t+0.0004 );
 
         // model ?
-        if((time-zacetekSkoka)>1) {           // cakanje pol sekunde za morebiten drugi skok, ce ne padec na pozicijo 0
+        if((time-zacetekSkoka)>0.5) {           // dolzina skoka prve stopnje (da imamo cas skociti se na drugo stopnjo)
             skok=0;
             stevec=0;
             stevec1=0;
@@ -313,69 +298,47 @@ function start(){
             drugiSkok=false;
         }
         pos2.z = pos2.z+2;
-        pos2.y = pos2.y-3 + skok;
-        //pos2.y = pos2.y-3.5 + skok;
+        pos2.y = pos2.y-3 + skok;           // skok in odstopanje se pristejeta ob pritisku ustrezne tipke (-3 -> zravnano s podlago zaradi odstopanja splina)
         pos2.x = pos2.x+odstopanje;
-       // var tween = new TWEEN.Tween(pos2.x).to(pos2.x+odstopanje, 500);   
-        //tween.onUpdate(function() {
-        //    pos2.x = pos2.x;
-        //});
+       
             
         if(renderLoop==1) {
-//            var geometry = new THREE.BoxGeometry(2, 2, 0.1);
-//            var material = new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/wall.jpg') });
-//            
-//            var z = 420;
-//            createWall(geometry, material, 0, -3, 80);
-//            
-//            var geometry = new THREE.BoxGeometry(1, 1, 0.1);
-//            var material = new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture('images/gold.jpg') });
-//            
-//            createArtifact(geometry, material, 2.5, -3, 80);
-//          
-            
-        
-        for(i=0; i<9; i++) {
-                createObsticle(80);
-        }
-        
-        allO=9; walls=5; artifacts=2; empty=2; 
-        
-        for(i=0; i<9; i++) {
-            createObsticle(100);
-        }
-        
-         allO=9; walls=5; artifacts=2; empty=2; 
-        
-        for(i=0; i<9; i++) {
-            createObsticle(120);
-        }
-            
-            
-            
-            for (var i=0; i<badGuys.length; i++) {
+            for(i=0; i<9; i++) {                        // dodajanje celotnega zidu 9 različnih objektov - vključno s prazninami.
+                    createObsticle(80);
+            }
+
+            allO=9; walls=5; artifacts=2; empty=2;      // ponastavljanje vrednosti.
+
+            for(i=0; i<9; i++) {
+                createObsticle(90);
+            }
+
+             allO=9; walls=5; artifacts=2; empty=2; 
+
+            for(i=0; i<9; i++) {
+                createObsticle(100);
+            }
+
+
+
+            for (var i=0; i<badGuys.length; i++) {              // risanje objektov na sceno (badguys + goodguys)
                 objekt.add(badGuys[i]);
             }
              for (var i=0; i<goodGuys.length; i++) {
                 objekt.add(goodGuys[i]);
             }
-            
-            //for(i=0; i<9; i++) {
-            //    createObsticle(100);
-            //}
+
             
         }
         
-        //console.log(stevecHorizontal);
-        
+// ------------------------ keyboard input --------------------------------------------------
         if(keyboard.pressed("A")) {
             if(right) {
                 odstopanje = 0;
             } else {
                 odstopanje = -2.5;
                 left=true;
-            }
-            
+            } 
         }
         
         if(keyboard.pressed("D")) {
@@ -440,7 +403,7 @@ function start(){
 
         for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++) {		
             var directionVector = new THREE.Vector3(0,0,1);         // zarek, ki gleda naprej
-            var ray = new THREE.Raycaster( originPoint, directionVector, 0, 1);
+            var ray = new THREE.Raycaster( originPoint, directionVector, 0, 0.3);
             
             for (var i=0; i<goodGuys.length; i++) {
                 var collisionResultsGG = ray.intersectObject(goodGuys[i]);
@@ -466,15 +429,9 @@ function start(){
         
         
 
-        // Camera Orientation 1 - default look at
-        // splineCamera.lookAt( lookAt );
 
         // Using arclength for stablization in look ahead.
         var lookAt = tube.parameters.path.getPointAt( ( t + 50 / tube.parameters.path.getLength() ) % 1 ).multiplyScalar( 5 );
-
-        // Camera Orientation 2 - up orientation via normal
-        //if (!lookAhead)
-        //lookAt.copy( pos ).add( dir );
         
         splineCamera.matrix.lookAt(splineCamera.position, lookAt, normal);
         splineCamera.rotation.setFromRotationMatrix( splineCamera.matrix,   splineCamera.rotation.order );
@@ -491,26 +448,6 @@ function start(){
         renderer.setClearColor( 0xf0f0f0 );
     }
     
-    
+
     
 }
-
-THREE.Curves = {};                                  // dedovanje Od Curves
-THREE.Curves.KnotCurve = THREE.Curve.create(        // matematika za PATH iz katerega zgradimo potem TUBE
-                                                    // KnotCurve Deduje od Curve in mu nastavimo costum create
-	function() {},
-	function(t) {       //getPoint: t is between 0-1
-
-		t *= 2 * Math.PI;
-
-		var R = 10;
-		var s = 50;
-		var tx = s * Math.sin(t),
-        ty = Math.cos(t) * (R + s * Math.cos(t)),
-        tz = Math.sin(t) * (R + s * Math.cos(t));
-
-		return new THREE.Vector3(tx, ty, tz);
-
-	}
-
-);
