@@ -1,4 +1,5 @@
-gameName
+Wiro
+
 ========
 
-First game in webGL for school project.
+Simple game made in three.js.
